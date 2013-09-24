@@ -61,32 +61,66 @@ License gpl-3.0 http://www.gnu.org/licenses/gpl-3.0-standalone.html
  */
 function objectMerge(shadows) {
     'use strict';
+    var objectForeach = require('object-foreach');
     var cloneFunction = require('clone-function');
-    var out = Object.create(null);
     shadows = Array.prototype.slice.call(arguments, 0);
-    shadows.forEach(function (shadow) {
-        Object.keys(shadow).forEach(function (prop) {
-            var tmp = Object.create(null);
-            var pBase = out[prop] || tmp;
-            var arr = [];
-            if (shadow[prop] instanceof Array) {
-                pBase = typeof out[prop] === 'object' ? pBase : tmp;
-                tmp = objectMerge(pBase, shadow[prop]);
-                Object.keys(tmp).forEach(function (key) {
-                    arr[key] = tmp[key];
-                });
-                tmp = arr;
-            } else if (shadow[prop] instanceof Function) {
-                tmp = cloneFunction(shadow[prop]);
-            } else if (typeof shadow[prop] === 'object') {
-                pBase = typeof out[prop] === 'object' ? pBase : tmp;
-                tmp = objectMerge(pBase, shadow[prop]);
+    var out;
+    // gets the sequential trailing objects from array.
+    function getShadowObjects (shadows) {
+        var out = shadows.reduce(function (collector, shadow) {
+            if(shadow instanceof Object) {
+                collector.push(shadow);
             } else {
-                tmp = shadow[prop];
+                collector = [];
             }
-            out[prop] = tmp;
-        });
-    });
+            return collector;
+        }, []);
+        return out;
+    }
+    // gets either a new object of the proper type or the last primitive value
+    function getOutputObject (shadows) {
+        var out;
+        var lastShadow = shadows[shadows.length - 1];
+        if (lastShadow instanceof Array) {
+            out = [];
+        } else if (lastShadow instanceof Function) {
+            out = cloneFunction(lastShadow);
+        } else if (lastShadow instanceof Object) {
+            out = {};
+        } else {
+            // lastShadow is a primitive value;
+            out = lastShadow;
+        }
+        return out;
+    }
+    
+    function main (shadows) {
+        var out = getOutputObject(shadows);
+        
+        function shadowHandler (val, prop, shadow) {
+            if(out[prop]) {
+                out[prop] = objectMerge(out[prop], shadow[prop]);
+            } else {
+                out[prop] = objectMerge(shadow[prop]);
+            }
+        }
+        
+        function shadowMerger (shadow) {
+            objectForeach(shadow, shadowHandler);
+        }
+        
+        // short circuits case where output would be a primitive value anyway.
+        if(out instanceof Object) {
+            // only merges trailing objects since primitives would wipe out previous
+            // objects, as in merging {a:'a'}, 'a', and {b:'b'} would result in
+            // {b:'b'} so the first two arguments can be ignored completely.
+            var relevantShadows = getShadowObjects(shadows);
+            relevantShadows.forEach(shadowMerger);
+        }
+        return out;
+    }
+    
+    out = main(shadows);
     return out;
 }
 module.exports = objectMerge;

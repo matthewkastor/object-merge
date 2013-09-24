@@ -41,10 +41,77 @@ describe('object-merge', function () {
         expect(out.fun()).toEqual(z.fun());
         expect(z.fun).not.toEqual(out.fun);
     });
+    it('clones function properties', function () {
+        var func = function () {
+            return null;
+        };
+        var func2 = function () {
+            return 'hello';
+        };
+        func.wohoo = 'wohoo';
+        func.obj = {a:'a'};
+        func2.wee = 'wee';
+        func2.obj2 = {a:'a'};
+        var out = objectMerge(func, func2);
+        expect(out.wohoo).toEqual('wohoo');
+        expect(out.wee).toEqual('wee');
+        expect(out.obj.a).toEqual('a');
+        expect(out.obj2.a).toEqual('a');
+        expect(out.obj === func.obj).toEqual(false);
+        expect(out.obj2 === func2.obj2).toEqual(false);
+        expect(out() === 'hello').toEqual(true);
+    });
     it('references native functions', function () {
         var out = objectMerge(x, y, z);
         expect(out.aps(['a'],0)).toEqual(z.aps(['a'],0))
         expect(out.aps).toEqual(z.aps);
+    });
+    it('preserves array indexes', function () {
+        var arr = [];
+        arr[0] = '0';
+        arr[5] = '5';
+        var obj = {
+            '0' : '1',
+            '1' : '1'
+        };
+        var out = objectMerge(obj, arr);
+        expect(arr.length).toEqual(6);
+        expect(out.length).toEqual(6);
+        expect(arr[0]).toEqual(out[0]);
+        expect(obj[1]).toEqual(out[1]);
+        expect(out[5]).toEqual(arr[5]);
+        expect(out instanceof Array).toEqual(true);
+    });
+    it('clones array properties', function () {
+        var arr = [];
+        arr[0] = '0';
+        var obj = {
+            'wee' : 'wee',
+            'wohoo' : 'wohoo',
+            'obj' : {}
+        };
+        var out = objectMerge(obj, arr);
+        expect(arr.length).toEqual(out.length);
+        expect(arr[0]).toEqual(out[0]);
+        expect(out.wee).toEqual(obj.wee);
+        expect(arr.wee === undefined).toEqual(true);
+        expect(out.wohoo).toEqual(obj.wohoo);
+        expect(out instanceof Array).toEqual(true);
+        expect(out.obj).toEqual({});
+        expect(out.obj === obj.obj).toEqual(false);
+    });
+    it('merges arrays', function () {
+        var arr1 = ['0','1','2'];
+        var arr2 = [];
+        arr2[2] = '`2';
+        arr2[3] = '`3';
+        var out = objectMerge(arr1, arr2);
+        expect(arr1.length).toEqual(3);
+        expect(arr2.length).toEqual(4);
+        expect(out.length).toEqual(4);
+        expect(arr1).toEqual(['0','1','2']);
+        expect(arr2).toEqual([undefined, undefined, '`2','`3']);
+        expect(out).toEqual(['0','1','`2','`3']);
     });
     it('clones array contents', function () {
         var out = objectMerge(x, w);

@@ -43,6 +43,7 @@
     }
   ],
   "dependencies": {
-    "clone-function": ">=1.0.1"
+    "clone-function": ">=1.0.1",
+    "object-foreach": ">=0.1.2"
   }
 }
