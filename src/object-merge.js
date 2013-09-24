@@ -64,7 +64,7 @@ function objectMerge(shadows) {
     var objectForeach = require('object-foreach');
     var cloneFunction = require('clone-function');
     shadows = Array.prototype.slice.call(arguments, 0);
-    var out;
+    
     // gets the sequential trailing objects from array.
     function getShadowObjects (shadows) {
         var out = shadows.reduce(function (collector, shadow) {
@@ -120,7 +120,6 @@ function objectMerge(shadows) {
         return out;
     }
     
-    out = main(shadows);
-    return out;
+    return main(shadows);
 }
 module.exports = objectMerge;
