@@ -68,7 +68,15 @@ function objectMerge(shadows) {
         Object.keys(shadow).forEach(function (prop) {
             var tmp = Object.create(null);
             var pBase = out[prop] || tmp;
-            if (shadow[prop] instanceof Function) {
+            var arr = [];
+            if (shadow[prop] instanceof Array) {
+                pBase = typeof out[prop] === 'object' ? pBase : tmp;
+                tmp = objectMerge(pBase, shadow[prop]);
+                Object.keys(tmp).forEach(function (key) {
+                    arr[key] = tmp[key];
+                });
+                tmp = arr;
+            } else if (shadow[prop] instanceof Function) {
                 tmp = cloneFunction(shadow[prop]);
             } else if (typeof shadow[prop] === 'object') {
                 pBase = typeof out[prop] === 'object' ? pBase : tmp;
