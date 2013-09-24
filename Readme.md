@@ -1,5 +1,4 @@
 # object-merge
-version 0.0.1
 
 Merges JavaScript objects recursively without altering the objects merged.
 
