@@ -60,10 +60,44 @@ var out = objectMerge(x, y, z);
 // out.aps will be equal to z.aps
 ```
 
+Merging arrays is not the same as `concat`. When they're merged the arrays are
+ handled as objects. This means that indexes are object properties with numeric
+ names. Merging `['a']` with `['b']` will give you `['b']` because the two
+ arrays both have a property `0` and the last one in overrides the first.
+ However, merging `arr1['a', 'b']` with `arr2[1] = 'override'` will give you
+ `['a', 'override']` because `arr1` has properties `0` and `1`, while `arr2`
+ only has the property `1` which overrides `arr1[1]` in the output.
+
+Merging functions will cause the output function to be a clone of the last
+ function merged and it will have all the properties of the merged functions
+ recursively merged together. So something like:
+
+```
+var func = function () {
+    return null;
+};
+var func2 = function () {
+    return 'hello';
+};
+func.wohoo = 'wohoo';
+func.obj = {a:'a'};
+func2.wee = 'wee';
+func2.obj = {b:'b'};
+func2.obj2 = {a:'a'};
+var out = objectMerge(func, func2);
+```
+
+will give you a function `out` that is a clone of `func2`'s function definition
+ but has the properties: `wohoo`, `obj`, `wee`, and `obj2`. `out.obj` will have
+ the properties `a` and `b` because the properties of `func` and `func2` are
+ merged recursively.
+
+See the tests in `browser/tests` for more examples and expected outputs.
+
 In the browser, include `./browser/object-merge_web.js` in your page.
  `objectMerge` will be available in your page.
 
-For full documentation see the docs folder. For examples see the example folder.
+For full documentation see the docs folder.
 
 ## Tests
 
@@ -72,6 +106,8 @@ Tests can be run from the root of this package with
 ```
 npm test
 ```
+
+There are also browser tests available in the `browser` directory.
 
 ## Hacking
 
@@ -87,8 +123,6 @@ npm run-script buildDocs
 ## Author
 
 Matthew Kastor
-atropa
-
 matthewkastor@gmail.com
 https://plus.google.com/100898583798552211130
 
