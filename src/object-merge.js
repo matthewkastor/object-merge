@@ -64,21 +64,20 @@ function objectMerge(shadows) {
     var objectForeach = require('object-foreach');
     var cloneFunction = require('clone-function');
     shadows = Array.prototype.slice.call(arguments, 0);
-    
     // gets the sequential trailing objects from array.
-    function getShadowObjects (shadows) {
+    function getShadowObjects(shadows) {
         var out = shadows.reduce(function (collector, shadow) {
-            if(shadow instanceof Object) {
-                collector.push(shadow);
-            } else {
-                collector = [];
-            }
-            return collector;
-        }, []);
+                if (shadow instanceof Object) {
+                    collector.push(shadow);
+                } else {
+                    collector = [];
+                }
+                return collector;
+            }, []);
         return out;
     }
     // gets either a new object of the proper type or the last primitive value
-    function getOutputObject (shadows) {
+    function getOutputObject(shadows) {
         var out;
         var lastShadow = shadows[shadows.length - 1];
         if (lastShadow instanceof Array) {
@@ -93,25 +92,21 @@ function objectMerge(shadows) {
         }
         return out;
     }
-    
-    function main (shadows) {
+    function main(shadows) {
         var out = getOutputObject(shadows);
-        /*jslint unparam:false */
-        function shadowHandler (val, prop, shadow) {
-        /*jslint unparam:true */
-            if(out[prop]) {
+        function shadowHandler(val, prop, shadow) {
+            /*jslint unparam:true */
+            if (out[prop]) {
                 out[prop] = objectMerge(out[prop], shadow[prop]);
             } else {
                 out[prop] = objectMerge(shadow[prop]);
             }
         }
-        
-        function shadowMerger (shadow) {
+        function shadowMerger(shadow) {
             objectForeach(shadow, shadowHandler);
         }
-        
         // short circuits case where output would be a primitive value anyway.
-        if(out instanceof Object) {
+        if (out instanceof Object) {
             // only merges trailing objects since primitives would wipe out previous
             // objects, as in merging {a:'a'}, 'a', and {b:'b'} would result in
             // {b:'b'} so the first two arguments can be ignored completely.
@@ -120,7 +115,6 @@ function objectMerge(shadows) {
         }
         return out;
     }
-    
     return main(shadows);
 }
 module.exports = objectMerge;
