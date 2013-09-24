@@ -51,11 +51,13 @@ describe('object-merge', function () {
         func.wohoo = 'wohoo';
         func.obj = {a:'a'};
         func2.wee = 'wee';
+        func2.obj = {b:'b'};
         func2.obj2 = {a:'a'};
         var out = objectMerge(func, func2);
         expect(out.wohoo).toEqual('wohoo');
         expect(out.wee).toEqual('wee');
         expect(out.obj.a).toEqual('a');
+        expect(out.obj.b).toEqual('b');
         expect(out.obj2.a).toEqual('a');
         expect(out.obj === func.obj).toEqual(false);
         expect(out.obj2 === func2.obj2).toEqual(false);
