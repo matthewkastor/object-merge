@@ -1,6 +1,6 @@
 {
   "name": "object-merge",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Merges JavaScript objects recursively without altering the objects merged.",
   "main": "./src/object-merge.js",
   "directories": {
