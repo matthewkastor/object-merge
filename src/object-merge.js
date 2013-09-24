@@ -96,8 +96,9 @@ function objectMerge(shadows) {
     
     function main (shadows) {
         var out = getOutputObject(shadows);
-        
+        /*jslint unparam:false */
         function shadowHandler (val, prop, shadow) {
+        /*jslint unparam:true */
             if(out[prop]) {
                 out[prop] = objectMerge(out[prop], shadow[prop]);
             } else {
