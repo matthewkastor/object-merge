@@ -83,7 +83,11 @@ function objectMerge(shadows) {
         if (lastShadow instanceof Array) {
             out = [];
         } else if (lastShadow instanceof Function) {
-            out = cloneFunction(lastShadow);
+            try {
+                out = cloneFunction(lastShadow);
+            } catch (e) {
+                throw new Error(e.message);
+            }
         } else if (lastShadow instanceof Object) {
             out = {};
         } else {
