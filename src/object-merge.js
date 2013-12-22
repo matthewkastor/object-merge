@@ -96,29 +96,50 @@ function objectMerge(shadows) {
         }
         return out;
     }
-    function main(shadows) {
-        var out = getOutputObject(shadows);
-        function shadowHandler(val, prop, shadow) {
-            /*jslint unparam:true */
-            if (out[prop]) {
-                out[prop] = objectMerge(out[prop], shadow[prop]);
-            } else {
-                out[prop] = objectMerge(shadow[prop]);
+    // this is the queue of visited objects / properties.
+    var visited = [];
+    function objectMergeRecursor(shadows) {
+        // if any of the current objects to process exist in the queue
+        // then throw an error.
+        shadows.forEach(function (item) {
+            if (item instanceof Object && visited.indexOf(item) > -1) {
+                throw new Error('Circular reference error');
             }
+        });
+        // if none of the current objects were in the queue then add references
+        // to the queue.
+        visited = visited.concat(shadows);
+        function main(shadows) {
+            var out = getOutputObject(shadows);
+            /*jslint unparam:true */
+            function shadowHandler(val, prop, shadow) {
+                if (out[prop]) {
+                    out[prop] = objectMergeRecursor([
+                        out[prop],
+                        shadow[prop]
+                    ]);
+                } else {
+                    out[prop] = objectMergeRecursor([shadow[prop]]);
+                }
+            }
+            /*jslint unparam:false */
+            function shadowMerger(shadow) {
+                objectForeach(shadow, shadowHandler);
+            }
+            // short circuits case where output would be a primitive value
+            // anyway.
+            if (out instanceof Object) {
+                // only merges trailing objects since primitives would wipe out
+                // previous objects, as in merging {a:'a'}, 'a', and {b:'b'}
+                // would result in {b:'b'} so the first two arguments
+                // can be ignored completely.
+                var relevantShadows = getShadowObjects(shadows);
+                relevantShadows.forEach(shadowMerger);
+            }
+            return out;
         }
-        function shadowMerger(shadow) {
-            objectForeach(shadow, shadowHandler);
-        }
-        // short circuits case where output would be a primitive value anyway.
-        if (out instanceof Object) {
-            // only merges trailing objects since primitives would wipe out previous
-            // objects, as in merging {a:'a'}, 'a', and {b:'b'} would result in
-            // {b:'b'} so the first two arguments can be ignored completely.
-            var relevantShadows = getShadowObjects(shadows);
-            relevantShadows.forEach(shadowMerger);
-        }
-        return out;
+        return main(shadows);
     }
-    return main(shadows);
+    return objectMergeRecursor(shadows);
 }
 module.exports = objectMerge;

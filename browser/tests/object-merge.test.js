@@ -146,4 +146,89 @@ describe('object-merge', function () {
         expect(x.c.a == 'wee').toEqual(false);
         expect(y.c.a == 'wee').toEqual(false);
     });
+    it('throws an error on circular references to functions', function () {
+        var x = {
+            'a' : function () {return null},
+        };
+        x.b = x.a;
+        function thrower () {
+            return objectMerge(x);
+        }
+        expect(thrower).toThrow();
+    });
+    it('throws an error on circular references to arrays', function () {
+        var x = {
+            'a' : [],
+        };
+        x.b = x.a;
+        function thrower () {
+            return objectMerge(x);
+        }
+        expect(thrower).toThrow();
+    });
+    it('throws an error on circular references to objects', function () {
+        var x = {
+            'a' : {}
+        };
+        x.b = x.a;
+        function thrower () {
+            return objectMerge(x);
+        }
+        expect(thrower).toThrow();
+    });
+    it('throws an error on circular references to nested objects', function () {
+        var x = {
+            'a' : {}
+        };
+        x.b = {};
+        x.b.c = x.a;
+        function thrower () {
+            return objectMerge(x);
+        }
+        expect(thrower).toThrow();
+    });
+    it('throws an error on circular references to string objects', function () {
+        var x = {
+            'a' : new String(),
+        };
+        x.b = x.a;
+        function thrower () {
+            return objectMerge(x);
+        }
+        expect(thrower).toThrow();
+    });
+    it('throws an error on circular references to number objects', function () {
+        var x = {
+            'a' : new Number(),
+        };
+        x.b = x.a;
+        function thrower () {
+            return objectMerge(x);
+        }
+        expect(thrower).toThrow();
+    });
+    it('does not throw an error on circular references to scalar string',
+        function () {
+            var x = {
+                'a' : 'x',
+            };
+            x.b = x.a;
+            function thrower () {
+                return objectMerge(x);
+            }
+            expect(thrower).not.toThrow();
+        }
+    );
+    it('does not throw an error on circular references to scalar number',
+        function () {
+            var x = {
+                'a' : 5,
+            };
+            x.b = x.a;
+            function thrower () {
+                return objectMerge(x);
+            }
+            expect(thrower).not.toThrow();
+        }
+    );
 });
