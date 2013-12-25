@@ -17,9 +17,35 @@ function ObjectMergeOptions(opts) {
 /*jslint unparam:true*/
 /**
  * Creates a new options object suitable for use with objectMerge.
+ * @memberOf objectMerge
  * @param {Object} [opts] An object specifying the options.
+ * @param {Object} [opts.depth = false] Specifies the depth to traverse objects
+ *  during merging. If this is set to false then there will be no depth limit.
+ * @param {Object} [opts.throwOnCircularRef = true] Set to false to suppress
+ *  errors on circular references.
  * @returns {ObjectMergeOptions} Returns an instance of ObjectMergeOptions
  *  to be used with objectMerge.
+ * @example
+ *  var opts = objectMerge.createOptions({
+ *      depth : 2,
+ *      throwOnCircularRef : false
+ *  });
+ *  var obj1 = {
+ *      a1 : {
+ *          a2 : {
+ *              a3 : {}
+ *          }
+ *      }
+ *  };
+ *  var obj2 = {
+ *      a1 : {
+ *          a2 : {
+ *              a3 : 'will not be in output'
+ *          },
+ *          a22 : {}
+ *      }
+ *  };
+ *  objectMerge(opts, obj1, obj2);
  */
 function createOptions(opts) {
     'use strict';
@@ -31,6 +57,7 @@ function createOptions(opts) {
 /*jslint unparam:false*/
 /**
  * Merges JavaScript objects recursively without altering the objects merged.
+ * @namespace Merges JavaScript objects recursively without altering the objects merged.
  * @author <a href="mailto:matthewkastor@gmail.com">Matthew Kastor</a>
  * @param {ObjectMergeOptions} [opts] An options object created by 
  *  objectMerge.createOptions. Options must be specified as the first argument
@@ -140,21 +167,25 @@ function objectMerge(shadows) {
         // then add references to the queue.
         visited = visited.concat(shadows);
     }
-    function main(shadows) {
+    function objectMergeRecursor(shadows, currentDepth) {
+        if (options.depth !== false) {
+            currentDepth = currentDepth ? currentDepth + 1 : 1;
+        } else {
+            currentDepth = 0;
+        }
+        if (options.throwOnCircularRef === true) {
+            circularReferenceCheck(shadows);
+        }
         var out = getOutputObject(shadows);
         /*jslint unparam: true */
-        // recursor defined below. Dougie removed the intelligent suppression of
-        // this warning, probably because of functions that reference each other.
-        // So, you're stuck with making sure this isn't a mistake every time you
-        // use his linter.
         function shadowHandler(val, prop, shadow) {
             if (out[prop]) {
                 out[prop] = objectMergeRecursor([
                     out[prop],
                     shadow[prop]
-                ]);
+                ], currentDepth);
             } else {
-                out[prop] = objectMergeRecursor([shadow[prop]]);
+                out[prop] = objectMergeRecursor([shadow[prop]], currentDepth);
             }
         }
         /*jslint unparam:false */
@@ -163,7 +194,7 @@ function objectMerge(shadows) {
         }
         // short circuits case where output would be a primitive value
         // anyway.
-        if (out instanceof Object) {
+        if (out instanceof Object && currentDepth <= options.depth) {
             // only merges trailing objects since primitives would wipe out
             // previous objects, as in merging {a:'a'}, 'a', and {b:'b'}
             // would result in {b:'b'} so the first two arguments
@@ -172,12 +203,6 @@ function objectMerge(shadows) {
             relevantShadows.forEach(shadowMerger);
         }
         return out;
-    }
-    function objectMergeRecursor(shadows) {
-        if (options.throwOnCircularRef === true) {
-            circularReferenceCheck(shadows);
-        }
-        return main(shadows);
     }
     // determines whether an options object was passed in and
     // uses it if present
