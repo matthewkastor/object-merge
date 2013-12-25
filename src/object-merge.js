@@ -6,27 +6,29 @@ License gpl-3.0 http://www.gnu.org/licenses/gpl-3.0-standalone.html
     vars: true,
     node: true
 */
-
-function ObjectMergeOptions (opts) {
+function ObjectMergeOptions(opts) {
+    'use strict';
     opts = opts || {};
-    this.depth = opts.depth || -1;
+    this.depth = opts.depth || false;
     // circular ref check is true unless explicitly set to false
-    this.throwOnCircularRef = (
-        'throwOnCircularRef' in opts && opts.throwOnCircularRef === false
-    ) ? false : true;
+    // ignore the jslint warning here, it's pointless.
+    this.throwOnCircularRef = 'throwOnCircularRef' in opts && opts.throwOnCircularRef === false ? false : true;
 }
+/*jslint unparam:true*/
 /**
  * Creates a new options object suitable for use with objectMerge.
  * @param {Object} [opts] An object specifying the options.
  * @returns {ObjectMergeOptions} Returns an instance of ObjectMergeOptions
  *  to be used with objectMerge.
  */
-function createOptions (opts) {
+function createOptions(opts) {
+    'use strict';
     var argz = Array.prototype.slice.call(arguments, 0);
     argz.unshift(null);
-    var f = ObjectMergeOptions.bind.apply(ObjectMergeOptions, argz);
-    return new f();
+    var F = ObjectMergeOptions.bind.apply(ObjectMergeOptions, argz);
+    return new F();
 }
+/*jslint unparam:false*/
 /**
  * Merges JavaScript objects recursively without altering the objects merged.
  * @author <a href="mailto:matthewkastor@gmail.com">Matthew Kastor</a>
@@ -126,7 +128,7 @@ function objectMerge(shadows) {
         return out;
     }
     // checks for circular references
-    function circularReferenceCheck (shadows) {
+    function circularReferenceCheck(shadows) {
         // if any of the current objects to process exist in the queue
         // then throw an error.
         shadows.forEach(function (item) {
@@ -140,7 +142,11 @@ function objectMerge(shadows) {
     }
     function main(shadows) {
         var out = getOutputObject(shadows);
-        /*jslint unparam:true */
+        /*jslint unparam: true */
+        // recursor defined below. Dougie removed the intelligent suppression of
+        // this warning, probably because of functions that reference each other.
+        // So, you're stuck with making sure this isn't a mistake every time you
+        // use his linter.
         function shadowHandler(val, prop, shadow) {
             if (out[prop]) {
                 out[prop] = objectMergeRecursor([
@@ -168,14 +174,15 @@ function objectMerge(shadows) {
         return out;
     }
     function objectMergeRecursor(shadows) {
-        if(options.throwOnCircularRef === true) {
+        if (options.throwOnCircularRef === true) {
             circularReferenceCheck(shadows);
         }
         return main(shadows);
     }
     // determines whether an options object was passed in and
     // uses it if present
-    if(arguments[0] instanceof ObjectMergeOptions) {
+    // ignore the jslint warning here too.
+    if (arguments[0] instanceof ObjectMergeOptions) {
         options = arguments[0];
         shadows = Array.prototype.slice.call(arguments, 1);
     } else {
@@ -184,6 +191,5 @@ function objectMerge(shadows) {
     }
     return objectMergeRecursor(shadows);
 }
-
 objectMerge.createOptions = createOptions;
 module.exports = objectMerge;

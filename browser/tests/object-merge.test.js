@@ -6,7 +6,7 @@ describe('createOptions', function () {
         function () {
             var opts = objectMerge.createOptions();
             expect(opts).toEqual({
-                depth : -1,
+                depth : false,
                 throwOnCircularRef : true
             });
         }
@@ -282,4 +282,32 @@ describe('object-merge', function () {
             expect(thrower2).toThrow();
         }
     );
+    it('considers depth of false to mean no limit', function () {
+        var a = {
+            'a1' : {
+                'a2' : {
+                    'a3' : {}
+                }
+            }
+        };
+        var opts = objectMerge.createOptions({depth : false});
+        var res = objectMerge(opts, a);
+        expect(res).toEqual(a);
+    });
+    it('allows specifying depth of traversal', function () {
+        var a = {
+            'a1' : {
+                'a2' : {
+                    'a3' : {}
+                }
+            }
+        };
+        var opts = objectMerge.createOptions({depth : 2});
+        var res = objectMerge(opts, a);
+        expect(res).toEqual({
+            'a1' : {
+                'a2' : {}
+            }
+        });
+    });
 });
