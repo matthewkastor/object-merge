@@ -1,6 +1,29 @@
 /*
 License gpl-3.0 http://www.gnu.org/licenses/gpl-3.0-standalone.html
 */
+describe('createOptions', function () {
+    it('creates an options object with defaults for unspecified values',
+        function () {
+            var opts = objectMerge.createOptions();
+            expect(opts).toEqual({
+                depth : -1,
+                throwOnCircularRef : true
+            });
+        }
+    );
+    it('creates an options object with user specified values',
+        function () {
+            var opts = objectMerge.createOptions({
+                depth : 9,
+                throwOnCircularRef : false
+            });
+            expect(opts).toEqual({
+                depth : 9,
+                throwOnCircularRef : false
+            });
+        }
+    );
+});
 describe('object-merge', function () {
     var w = {
         a : [
@@ -229,6 +252,34 @@ describe('object-merge', function () {
                 return objectMerge(x);
             }
             expect(thrower).not.toThrow();
+        }
+    );
+    it('allows circular reference check to be disabled', function () {
+        var x = {
+            'a' : {}
+        };
+        x.b = x.a;
+        function thrower () {
+            var opts = objectMerge.createOptions({throwOnCircularRef : false});
+            return objectMerge(opts, x);
+        }
+        expect(thrower).not.toThrow();
+    });
+    it('only considers ObjectMergeOptions obj @ arg[0] to be valid options',
+        function () {
+            var x = {
+                'a' : {}
+            };
+            x.b = x.a;
+            function thrower () {
+                var opts = objectMerge.createOptions({throwOnCircularRef : false});
+                return objectMerge(x, opts);
+            }
+            function thrower2 () {
+                return objectMerge({throwOnCircularRef : false}, x);
+            }
+            expect(thrower).toThrow();
+            expect(thrower2).toThrow();
         }
     );
 });
