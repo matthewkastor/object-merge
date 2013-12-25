@@ -302,11 +302,21 @@ describe('object-merge', function () {
                 }
             }
         };
+        var b = {
+            'b1' : {
+                'b2' : {
+                    'b3' : {}
+                }
+            }
+        };
         var opts = objectMerge.createOptions({depth : 2});
-        var res = objectMerge(opts, a);
+        var res = objectMerge(opts, a, b);
         expect(res).toEqual({
             'a1' : {
                 'a2' : {}
+            },
+            'b1' : {
+                'b2' : {}
             }
         });
     });
