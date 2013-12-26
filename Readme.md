@@ -13,7 +13,7 @@ Source code available at: https://github.com/matthewkastor/object-merge/
 
 ## Usage
 
-In node:
+In Node:
 
 ```
 var objectMerge = require('object-merge');
@@ -91,6 +91,42 @@ will give you a function `out` that is a clone of `func2`'s function definition
  but has the properties: `wohoo`, `obj`, `wee`, and `obj2`. `out.obj` will have
  the properties `a` and `b` because the properties of `func` and `func2` are
  merged recursively.
+ 
+### Options
+
+Options exist to do things like limit the depth of object traversal and disable
+ errors on detection of circular references. In order to specify the options you
+ must create an options object using the provided method `createOptions`, a
+ normal object just won't work.
+
+```
+var objectMerge = require('object-merge');
+var a = {
+    'a1' : {
+        'a2' : {
+            'a3' : {}
+        }
+    }
+};
+var b = {
+    'b1' : {
+        'b2' : {
+            'b3' : {}
+        }
+    }
+};
+var opts = objectMerge.createOptions({depth : 2});
+var res = objectMerge(opts, a, b);
+// res will be
+// {
+//     'a1' : {
+//         'a2' : {}
+//     },
+//     'b1' : {
+//         'b2' : {}
+//     }
+// }
+```
 
 See the tests in `browser/tests` for more examples and expected outputs.
 
