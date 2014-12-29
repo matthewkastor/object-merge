@@ -143,15 +143,15 @@ describe('object-merge', function () {
     });
     it('treats arrays as primitives with arraysAsPrimitives set to true', function () {
         var arr1 = ['0','1','2'];
-        var arr2 = [];
-        var opts = objectMerge.createOptions({arraysAsPrimitives : true});
+        var arr2 = ['A','B','C'];
+        var opts = objectMerge.createOptions({throwOnCircularRef : false, arraysAsPrimitives : true});
         var out = objectMerge(opts, arr1, arr2);
         expect(arr1.length).toEqual(3);
-        expect(arr2.length).toEqual(0);
-        expect(out.length).toEqual(0);
         expect(arr1).toEqual(['0','1','2']);
-        expect(arr2).toEqual([]);
-        expect(out).toEqual([]);
+        expect(arr2.length).toEqual(3);
+        expect(arr2).toEqual(['A','B','C']);
+        expect(out.length).toEqual(3);
+        expect(out).toEqual(['A','B','C']);
     });
     it('treats arrays embedded in objects as primitives with arraysAsPrimitives set to true', function () {
         var obj1 = {
@@ -161,18 +161,19 @@ describe('object-merge', function () {
 			}
 		};
         var obj2 = {
-			a: [],
+			a: ['A','B','C'],
 			a2: {
 				b: "see"
 			}
 		};
-        var opts = objectMerge.createOptions({arraysAsPrimitives : true});
+        var opts = objectMerge.createOptions({throwOnCircularRef : false, arraysAsPrimitives : true});
         var out = objectMerge(opts, obj1, obj2);
         expect(obj1.a.length).toEqual(3);
 		expect(obj1.a2.b).toEqual("bee");
-        expect(obj2.a.length).toEqual(0);
+        expect(obj2.a.length).toEqual(3);
 		expect(obj2.a2.b).toEqual("see");
-        expect(out.a.length).toEqual(0);
+        expect(out.a.length).toEqual(3);
+		expect(out.a).toEqual(['A','B','C']);
         expect(out.a2.b).toEqual("see");
     });
     it('clones array contents', function () {

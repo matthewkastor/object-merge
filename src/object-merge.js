@@ -145,7 +145,10 @@ function objectMerge(shadows) {
         var out;
         var lastShadow = shadows[shadows.length - 1];
         if (lastShadow instanceof Array) {
-            out = [];
+            if (options.arraysAsPrimitives === true)
+				out = lastShadow;
+			else
+				out = [];
         } else if (lastShadow instanceof Function) {
             try {
                 out = cloneFunction(lastShadow);
