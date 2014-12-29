@@ -13,7 +13,7 @@ function ObjectMergeOptions(opts) {
     // circular ref check is true unless explicitly set to false
     // ignore the jslint warning here, it's pointless.
     this.throwOnCircularRef = 'throwOnCircularRef' in opts && opts.throwOnCircularRef === false ? false : true;
-	this.arraysAsPrimitives = 'arraysAsPrimitives' in opts && opts.arraysAsPrimitives === true ? true : false;
+    this.arraysAsPrimitives = 'arraysAsPrimitives' in opts && opts.arraysAsPrimitives === true ? true : false;
 }
 /*jslint unparam:true*/
 /**
@@ -199,14 +199,14 @@ function objectMerge(shadows) {
             objectForeach(shadow, shadowHandler);
         }
         
-		if (options.arraysAsPrimitives === true && out instanceof Array)
-		{
-			return out;
-		}
+        if (options.arraysAsPrimitives === true && out instanceof Array)
+        {
+            return out;
+        }
         
 		// short circuits case where output would be a primitive value
         // anyway.
-		if (out instanceof Object && currentDepth <= options.depth) {
+        if (out instanceof Object && currentDepth <= options.depth) {
             // only merges trailing objects since primitives would wipe out
             // previous objects, as in merging {a:'a'}, 'a', and {b:'b'}
             // would result in {b:'b'} so the first two arguments
