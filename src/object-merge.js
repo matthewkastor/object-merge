@@ -13,6 +13,7 @@ function ObjectMergeOptions(opts) {
     // circular ref check is true unless explicitly set to false
     // ignore the jslint warning here, it's pointless.
     this.throwOnCircularRef = 'throwOnCircularRef' in opts && opts.throwOnCircularRef === false ? false : true;
+    this.arraysAsPrimitives = 'arraysAsPrimitives' in opts && opts.arraysAsPrimitives === true ? true : false;
 }
 /*jslint unparam:true*/
 /**
@@ -23,18 +24,22 @@ function ObjectMergeOptions(opts) {
  *  during merging. If this is set to false then there will be no depth limit.
  * @param {Object} [opts.throwOnCircularRef = true] Set to false to suppress
  *  errors on circular references.
+ * @param {Object} [opts.arraysAsPrimitives = false] Set to true to treat
+ *  arrays as primitives (subqequent arrays will overwrite preceding ones)
  * @returns {ObjectMergeOptions} Returns an instance of ObjectMergeOptions
  *  to be used with objectMerge.
  * @example
  *  var opts = objectMerge.createOptions({
  *      depth : 2,
- *      throwOnCircularRef : false
+ *      throwOnCircularRef : false,
+ *      arraysAsPrimitives : true
  *  });
  *  var obj1 = {
  *      a1 : {
  *          a2 : {
  *              a3 : {}
- *          }
+ *          },
+ *          b : ['will not be in output']
  *      }
  *  };
  *  var obj2 = {
@@ -42,7 +47,8 @@ function ObjectMergeOptions(opts) {
  *          a2 : {
  *              a3 : 'will not be in output'
  *          },
- *          a22 : {}
+ *          a22 : {},
+ *          b: []
  *      }
  *  };
  *  objectMerge(opts, obj1, obj2);
@@ -139,7 +145,10 @@ function objectMerge(shadows) {
         var out;
         var lastShadow = shadows[shadows.length - 1];
         if (lastShadow instanceof Array) {
-            out = [];
+            if (options.arraysAsPrimitives === true)
+				out = lastShadow;
+			else
+				out = [];
         } else if (lastShadow instanceof Function) {
             try {
                 out = cloneFunction(lastShadow);
@@ -192,7 +201,13 @@ function objectMerge(shadows) {
         function shadowMerger(shadow) {
             objectForeach(shadow, shadowHandler);
         }
-        // short circuits case where output would be a primitive value
+        
+        if (options.arraysAsPrimitives === true && out instanceof Array)
+        {
+            return out;
+        }
+        
+		// short circuits case where output would be a primitive value
         // anyway.
         if (out instanceof Object && currentDepth <= options.depth) {
             // only merges trailing objects since primitives would wipe out
