@@ -147,7 +147,7 @@ function objectMerge(shadows) {
                 throw new Error(e.message);
             }
         } else if (lastShadow instanceof RegExp) {
-            out = lastShadow;
+            out = new RegExp(lastShadow.source, lastShadow.flags);
         } else if (lastShadow instanceof Object) {
             out = {};
         } else {
