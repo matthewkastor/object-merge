@@ -15,3 +15,5 @@ Desktop.ini
 
 # Recycle Bin used on file shares
 $RECYCLE.BIN/
+/.vs
+/package-lock.json

@@ -45,13 +45,13 @@ var browserifyBundleOpts = {
 var path = require('path');
 var fs = require('fs');
 var browserify = require('browserify');
-var b = browserify();
+var b = browserify(browserifyBundleOpts);
 var browserMain = path.resolve(__dirname, 'browserMain.js');
 var outputFile = path.resolve(__dirname, '../browser/object-merge_web.js');
 var writeStream = fs.createWriteStream(outputFile);
 
 b.add(browserMain);
-b.bundle(browserifyBundleOpts).pipe(writeStream);
+b.bundle().pipe(writeStream);
 
 
 

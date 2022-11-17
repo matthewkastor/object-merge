@@ -1,6 +1,6 @@
 {
   "name": "object-merge",
-  "version": "2.5.1",
+  "version": "2022.11.16",
   "description": "Merges JavaScript objects recursively without altering the objects merged.",
   "main": "./src/object-merge.js",
   "directories": {
@@ -10,7 +10,7 @@
   "devDependencies": {
     "atropa-jsformatter": ">=0.1.2",
     "atropa-jslint": ">=0.1.2",
-    "browserify": ">=2.29.1",
+    "browserify": ">=17.0.0",
     "jasmine-node": ">=1.11.0",
     "jsdoc-toolkit": "git+https://github.com/matthewkastor/node-jsdoc-toolkit.git#fix-tests"
   },
