@@ -320,4 +320,31 @@ describe('object-merge', function () {
             }
         });
     });
+
+    it('clones regexp', function () {
+        var regexp = /a.*/;
+        var a = {
+            'a1' : regexp
+        };
+        var res = objectMerge(a);
+        expect(res.a1.source).toEqual(regexp.source);
+        expect(res.a1.flags).toEqual(regexp.source.flags);
+        expect(res.a1 === regexp).toEqual(false);
+    });
+
+    it('keeps regexp from last object', function () {
+        var a = {
+            'a1' : /c.*/
+        };
+        var b = {
+            'a1' : /d.*/
+        };
+        var opts = objectMerge.createOptions({
+            throwOnCircularRef : false
+        });
+        var res = objectMerge(opts, a, b);
+        expect(res.a1.source).toEqual(/d.*/.source);
+    });
+
+
 });
